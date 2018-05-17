@@ -25,9 +25,34 @@
         ], function (Physics) {
             Physics({
                 integrator: 'verlet'
-            }, function(world) {
+            }, function (world) {
+                var electrons = [];
+
+                function updateElectrons() {
+                    for (let i in electrons) {
+                        let electron = electrons[i];
+                        if (electron.x > 800 + electron.radius) {
+                            world.remove(electron);
+                            electrons.splice(i, 1);
+                        }
+                    }
+
+                    if (Math.random() < 0.1) {
+                        let electron = Physics.body('circle', {
+                            x: 0,
+                            y: Math.random() * 400,
+                            vx: 1,
+                            radius: 5
+                        });
+                        world.add(electron);
+                        electrons.push(electron);
+                    }
+                }
+
                 var renderer = Physics.renderer('canvas', {
-                    el: 'viewport'
+                    el: 'viewport',
+                    /*width: 800,
+                    height: 400*/
                 });
                 world.add(renderer);
 
@@ -36,6 +61,7 @@
                 });
 
                 Physics.util.ticker.on(function (time) {
+                    updateElectrons(Physics, world);
                     world.step(time);
                 });
             });
@@ -43,8 +69,7 @@
     </script>
 </head>
 <body>
-    <div id="viewport">
-        <canvas height="200" width="500">Canvas is not supported.</canvas>
+    <div id="viewport" style="height: 400px; width: 800px;">
     </div>
 </body>
 </html>
