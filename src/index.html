@@ -1,0 +1,50 @@
+﻿<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title>Resistance simulation</title>
+    <script src="js/require.js"></script>
+    <script>
+        require.config({
+            baseUrl: './',
+            packages: [
+                {
+                    name: 'physicsjs',
+                    location: 'js',
+                    main: 'physicsjs'
+                }
+            ]
+        });
+    </script>
+    <script>
+        require([
+            'physicsjs',
+            'physicsjs/renderers/canvas',
+            'physicsjs/bodies/circle'
+        ], function (Physics) {
+            Physics({
+                integrator: 'verlet'
+            }, function(world) {
+                var renderer = Physics.renderer('canvas', {
+                    el: 'viewport'
+                });
+                world.add(renderer);
+
+                world.on('step', function () {
+                    world.render();
+                });
+
+                Physics.util.ticker.on(function (time) {
+                    world.step(time);
+                });
+            });
+        });
+    </script>
+</head>
+<body>
+    <div id="viewport">
+        <canvas height="200" width="500">Canvas is not supported.</canvas>
+    </div>
+</body>
+</html>
