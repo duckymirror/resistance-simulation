@@ -21,12 +21,15 @@
         require([
             'physicsjs',
             'physicsjs/renderers/canvas',
-            'physicsjs/bodies/circle'
+            'physicsjs/bodies/circle',
+            'physicsjs/behaviors/constant-acceleration'
         ], function (Physics) {
             Physics({
                 integrator: 'verlet'
             }, function (world) {
                 var electrons = [];
+
+                var accelBehavior;
 
                 function updateElectrons() {
                     for (let i in electrons) {
@@ -47,6 +50,10 @@
                         world.add(electron);
                         electrons.push(electron);
                     }
+
+                    if (accelBehavior) {
+                        accelBehavior.applyTo(electrons);
+                    }
                 }
 
                 var renderer = Physics.renderer('canvas', {
@@ -59,6 +66,11 @@
                 world.on('step', function () {
                     world.render();
                 });
+
+                accelBehavior = Physics.behavior('constant-acceleration', {
+                    acc: { x: 0.0004, y: 0 }
+                }).applyTo([]);
+                world.add(accelBehavior);
 
                 Physics.util.ticker.on(function (time) {
                     updateElectrons(Physics, world);
