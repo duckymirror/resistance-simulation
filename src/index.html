@@ -22,7 +22,8 @@
             'physicsjs',
             'physicsjs/renderers/canvas',
             'physicsjs/bodies/circle',
-            'physicsjs/behaviors/constant-acceleration'
+            'physicsjs/behaviors/constant-acceleration',
+            'physicsjs/behaviors/newtonian'
         ], function (Physics) {
             Physics({
                 integrator: 'verlet'
@@ -70,7 +71,11 @@
                 accelBehavior = Physics.behavior('constant-acceleration', {
                     acc: { x: 0.0004, y: 0 }
                 }).applyTo([]);
-                world.add(accelBehavior);
+
+                newtonian = Physics.behavior('newtonian', {
+                    strength: -.01
+                });
+                world.add(accelBehavior, newtonian);
 
                 Physics.util.ticker.on(function (time) {
                     updateElectrons(Physics, world);
