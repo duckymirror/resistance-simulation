@@ -5,6 +5,7 @@
     <meta charset="utf-8" />
     <title>Resistance simulation</title>
     <script src="js/require.js"></script>
+    <script src="js/jquery.js"></script>
     <script>
         require.config({
             baseUrl: './',
@@ -57,6 +58,22 @@
                     }
                 }
 
+                function createAtoms() {
+                    let anchors = [];
+                    for (let i = 50; i < 800; i += 100) {
+                        let anchorList = [];
+                        let defaultProps = {
+                            x: i,
+                            radius: 0,
+                            mass: 0.00001,
+                            treatment: 'static'
+                        };
+                        anchorList.push(Physics.body('circle', $.extend({}, defaultProps, { y: 0 })));
+                        anchorList.push(Physics.body('circle', $.extend({}, defaultProps, { y: 400 })));
+                        world.add(anchorList);
+                    }
+                }
+
                 var renderer = Physics.renderer('canvas', {
                     el: 'viewport',
                     /*width: 800,
@@ -67,6 +84,8 @@
                 world.on('step', function () {
                     world.render();
                 });
+
+                createAtoms();
 
                 accelBehavior = Physics.behavior('constant-acceleration', {
                     acc: { x: 0.0004, y: 0 }
