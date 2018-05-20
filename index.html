@@ -1,0 +1,140 @@
+﻿<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title>Resistance simulation</title>
+    <script src="js/require.js"></script>
+    <script src="js/jquery.js"></script>
+    <script>
+        require.config({
+            baseUrl: './',
+            packages: [
+                {
+                    name: 'physicsjs',
+                    location: 'js',
+                    main: 'physicsjs'
+                }
+            ]
+        });
+    </script>
+    <script>
+        require([
+            'physicsjs',
+            'physicsjs/renderers/canvas',
+            'physicsjs/bodies/circle',
+            'physicsjs/behaviors/constant-acceleration',
+            'physicsjs/behaviors/newtonian',
+            'physicsjs/behaviors/verlet-constraints'
+        ], function (Physics) {
+            Physics({
+                integrator: 'verlet'
+            }, function (world) {
+                var electrons = [];
+
+                var accelBehavior;
+                var constraints;
+
+                function updateElectrons() {
+                    for (let i in electrons) {
+                        let electron = electrons[i];
+                        if (electron.x > 800 + electron.radius) {
+                            world.remove(electron);
+                            electrons.splice(i, 1);
+                        }
+                    }
+
+                    if (Math.random() < 0.1) {
+                        let electron = Physics.body('circle', {
+                            x: 0,
+                            y: Math.random() * 400,
+                            vx: 0.5,
+                            radius: 5,
+                            mass: 0.01
+                        });
+                        world.add(electron);
+                        electrons.push(electron);
+                    }
+
+                    if (accelBehavior) {
+                        accelBehavior.applyTo(electrons);
+                    }
+                }
+
+                function createAtoms() {
+                    let anchorDefaults = {
+                        radius: 0,
+                        mass: 0.00001,
+                        treatment: 'static'
+                    };
+                    let atomDefaults = {
+                        radius: 20,
+                        mass: 10
+                    };
+
+                    let bodyList = [];
+
+                    for (let i = 0; i < 4; i++) {
+                        bodyList.push(Physics.body('circle', $.extend({}, anchorDefaults, { x: -50, y: i * 100 + 50 })));
+                    }
+
+                    for (let i = 0; i < 8; i++) {
+                        let anchorProps = $.extend({}, anchorDefaults, { x: i * 100 + 50 });
+                        let atomProps = $.extend({}, atomDefaults, { x: i * 100 + 50 });
+
+                        bodyList.push(Physics.body('circle', $.extend({}, anchorProps, { y: -50 })));
+                        for (let j = 0; j < 4; j++) {
+                            bodyList.push(Physics.body('circle', $.extend({}, atomProps, { y: j * 100 + 50 })));
+                            constraints.distanceConstraint(bodyList[bodyList.length - 1], bodyList[bodyList.length - 2], 0.99);
+                            constraints.distanceConstraint(bodyList[4 * (i + 1) + j + 1], bodyList[bodyList.length - 1], 0.99);
+                        }
+                        bodyList.push(Physics.body('circle', $.extend({}, anchorProps, { y: 450 })));
+                        constraints.distanceConstraint(bodyList[bodyList.length - 1], bodyList[bodyList.length - 2], 0.99);
+                    }
+
+                    for (let i = 0; i < 4; i++) {
+                        bodyList.push(Physics.body('circle', $.extend({}, anchorDefaults, { x: 850, y: i * 100 + 50 })));
+                        constraints.distanceConstraint(bodyList[4 * 9 + i], bodyList[bodyList.length - 1], 0.99);
+                    }
+
+                    world.add(bodyList);
+                }
+
+                var renderer = Physics.renderer('canvas', {
+                    el: 'viewport',
+                    /*width: 800,
+                    height: 400*/
+                });
+                world.add(renderer);
+
+                world.on('step', function () {
+                    world.render();
+                });
+
+                constraints = Physics.behavior('verlet-constraints');
+                world.add(constraints);
+
+                createAtoms();
+
+                accelBehavior = Physics.behavior('constant-acceleration', {
+                    acc: { x: 0.0004, y: 0 }
+                }).applyTo([]);
+
+                newtonian = Physics.behavior('newtonian', {
+                    strength: -.1
+                });
+                world.add([accelBehavior, newtonian]);
+
+                Physics.util.ticker.on(function (time) {
+                    updateElectrons(Physics, world);
+                    world.step(time);
+                });
+            });
+        });
+    </script>
+</head>
+<body>
+    <div id="viewport" style="height: 400px; width: 800px;">
+    </div>
+</body>
+</html>
