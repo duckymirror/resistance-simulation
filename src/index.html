@@ -38,7 +38,7 @@
                 function updateElectrons() {
                     for (let i in electrons) {
                         let electron = electrons[i];
-                        if (electron.x > 800 + electron.radius) {
+                        if (electron.state.pos.x > 800 + electron.radius) {
                             world.remove(electron);
                             electrons.splice(i, 1);
                         }
