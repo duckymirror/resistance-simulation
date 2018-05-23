@@ -50,7 +50,11 @@
                             y: Math.random() * 400,
                             vx: 0.5,
                             radius: 5,
-                            mass: 0.01
+                            mass: 0.01,
+                            styles: {
+                                fillStyle: '#00DF38',
+                                angleIndicator: '#00DF38'
+                            }
                         });
                         world.add(electron);
                         electrons.push(electron);
@@ -69,7 +73,11 @@
                     };
                     let atomDefaults = {
                         radius: 20,
-                        mass: 10
+                        mass: 10,
+                        styles: {
+                            fillStyle: '#FF4B4B',
+                            angleIndicator: '#FF4B4B'
+                        }
                     };
 
                     let bodyList = [];
