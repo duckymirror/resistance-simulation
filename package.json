@@ -4,5 +4,10 @@
   },
   "scripts": {
     "deploy": "gh-pages -d src"
+  },
+  "license": "Unlicense",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/duckymirror/resistance-simulation.git"
   }
 }
